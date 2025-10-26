@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import TaskCard from "@/components/TaskCard";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { useLocation } from "wouter";
@@ -69,6 +70,12 @@ export default function TasksPage() {
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold">Tasks</h2>
+          <Button
+            onClick={() => console.log('Add task clicked')}
+            data-testid="button-add-task"
+          >
+            Add Task
+          </Button>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
