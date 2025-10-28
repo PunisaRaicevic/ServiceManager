@@ -47,19 +47,24 @@ Preferred communication style: Simple, everyday language.
 
 **Database Layer**
 - Drizzle ORM for type-safe database operations
-- PostgreSQL via Neon serverless driver with WebSocket support
+- **PostgreSQL via Supabase** (migrated from Replit Neon database on October 28, 2025)
+  - Connection via `@neondatabase/serverless` package (Supabase uses Neon-compatible driver)
+  - Session Pooler connection for IPv4/IPv6 compatibility (`aws-1-eu-north-1.pooler.supabase.com`)
+  - Environment variable `DATABASE_URL` contains Session Pooler connection string
 - Schema-first approach with Drizzle-Zod for runtime validation
 - Storage abstraction layer (IStorage interface) separating business logic from data access
+- UUID primary keys generated via `uuid_generate_v4()` server-side
 
 **Database Schema Design**
 
-Core entities with UUID primary keys:
-- **Users**: Authentication and technician profiles (username, password, full name, email, role)
-- **Clients**: Business customer records with contact details and tax information (PIB, PDV, account numbers)
-- **Appliances**: Equipment tracked per client with make/model, serial numbers, installation dates
+Core entities with VARCHAR UUID primary keys:
+- **Profiles** (users): Authentication and technician profiles (username, password_hash, full_name, email, user_role)
+- **Clients**: Business customer records with contact details (client_contact) and tax information (client_pib, client_pdv, client_account)
+- **Appliances**: Equipment tracked per client with maker, type, model, serial, IGA number, picture URL, service dates
 - **Tasks**: Service assignments with status workflow (pending → in_progress → completed), priority levels, and recurring task support
-- **Reports**: Service completion documentation linked to tasks
-- **Files**: Attachments associated with tasks or reports
+- **Reports**: Service completion documentation linked to tasks with spare_parts_used, work_duration, photos
+- **Documents**: File metadata with related_to/related_id for flexible entity linking
+- **Spare Parts**: Inventory management with part_number, manufacturer, quantity_in_stock, minimum_stock_level, unit_price, location
 
 **Recurring Tasks Feature**
 - Tasks support both one-time repairs and recurring inspections
@@ -74,8 +79,11 @@ Core entities with UUID primary keys:
 - `/api/clients` - CRUD operations for client management
 - `/api/appliances` - Equipment management with client filtering
 - `/api/tasks` - Task operations including recurring task generation endpoint
+  - `POST /api/tasks/recurring/generate` - Generates new task instances from recurring patterns
+  - `GET /api/tasks/recurring/due` - Returns recurring tasks due for generation
 - `/api/reports` - Service report creation and retrieval
-- `/api/files` - File attachment handling
+- `/api/documents` - Document metadata management
+- `/api/spare-parts` - Inventory CRUD operations
 - Standard HTTP methods (GET, POST, PATCH, DELETE) with appropriate status codes
 
 **Development Setup**
@@ -86,10 +94,13 @@ Core entities with UUID primary keys:
 ### External Dependencies
 
 **Database**
-- **Neon PostgreSQL**: Serverless PostgreSQL provider
-  - Connection via `@neondatabase/serverless` package with WebSocket support
-  - Environment variable `DATABASE_URL` required for connection
-  - Connection pooling enabled for efficient resource usage
+- **Supabase PostgreSQL**: Managed PostgreSQL database (migrated October 28, 2025)
+  - Project region: EU North (Stockholm) - `aws-1-eu-north-1`
+  - Connection via Neon-compatible serverless driver (`@neondatabase/serverless`)
+  - Session Pooler for IPv4/IPv6 compatibility and connection pooling
+  - Environment variable `DATABASE_URL` contains Session Pooler connection string
+  - UUID extension (`uuid-ossp`) enabled for UUID generation
+  - All tables created with complete indexes for optimal query performance
 
 **ORM & Validation**
 - **Drizzle ORM**: Type-safe database operations

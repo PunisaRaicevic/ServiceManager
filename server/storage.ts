@@ -64,7 +64,7 @@ export class DbStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(profiles).where(eq(profiles.userName, username));
+    const result = await db.select().from(profiles).where(eq(profiles.username, username));
     return result[0];
   }
 
@@ -72,7 +72,7 @@ export class DbStorage implements IStorage {
     const result = await db.insert(profiles).values({
       id: randomUUID(),
       ...insertProfile
-    }).returning();
+    } as any).returning();
     return result[0];
   }
 

@@ -4,34 +4,37 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const profiles = pgTable("profiles", {
-  id: varchar("id").primaryKey(),
-  userName: text("user_name"),
+  id: varchar("user_id").primaryKey(),
+  username: varchar("username").notNull(),
+  passwordHash: varchar("password_hash").notNull(),
+  fullName: varchar("full_name").notNull(),
+  email: varchar("email"),
+  userRole: varchar("user_role").default("technician"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const clients = pgTable("clients", {
   id: varchar("client_id").primaryKey(),
-  name: text("client_name").notNull(),
-  email: text("client_email"),
-  phone: text("client_phone"),
-  address: text("client_address"),
-  pib: text("client_pib"),
-  pdv: text("client_pdv"),
-  account: text("client_account"),
+  name: varchar("client_name").notNull(),
+  address: varchar("client_address"),
+  contact: varchar("client_contact"),
+  pib: varchar("client_pib"),
+  pdv: varchar("client_pdv"),
+  account: varchar("client_account"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const appliances = pgTable("appliances", {
   id: varchar("appliance_id").primaryKey(),
   clientId: varchar("client_id").notNull().references(() => clients.id, { onDelete: "cascade" }),
-  name: text("appliance_name").notNull(),
-  maker: text("appliance_maker"),
-  iga: integer("appliance_iga"),
-  serialNumber: text("appliance_serial_number"),
-  picture: text("appliance_picture"),
+  maker: varchar("appliance_maker"),
+  type: varchar("appliance_type"),
+  model: varchar("appliance_model"),
+  serial: varchar("appliance_serial"),
+  iga: varchar("appliance_iga"),
+  picture: varchar("appliance_picture"),
   lastServiceDate: date("last_service_date"),
   nextServiceDate: date("next_service_date"),
-  location: text("appliance_location"),
   installDate: date("appliance_install_date"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
@@ -61,30 +64,32 @@ export const tasks = pgTable("tasks", {
 export const reports = pgTable("reports", {
   id: varchar("report_id").primaryKey(),
   taskId: varchar("task_id").notNull().references(() => tasks.id, { onDelete: "cascade" }),
-  userId: varchar("user_id").references(() => profiles.id, { onDelete: "set null" }),
-  description: text("description"),
-  photos: json("photos"),
-  sparePartsUsed: json("spare_parts_used"),
+  description: text("report_description").notNull(),
+  sparePartsUsed: text("spare_parts_used"),
   workDuration: integer("work_duration"),
+  photos: text("photos"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const documents = pgTable("documents", {
   id: varchar("document_id").primaryKey(),
-  name: text("document_name").notNull(),
-  url: text("document_url").notNull(),
-  type: text("document_type"),
-  uploadedBy: varchar("uploaded_by").references(() => profiles.id, { onDelete: "set null" }),
+  name: varchar("document_name").notNull(),
+  type: varchar("document_type"),
+  url: varchar("document_url").notNull(),
+  relatedTo: varchar("related_to"),
+  relatedId: varchar("related_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const spareParts = pgTable("spare_parts", {
-  id: varchar("spare_part_id").primaryKey(),
-  name: text("spare_part_name").notNull(),
-  maker: text("spare_part_maker"),
-  detail: text("spare_part_detail"),
-  picture: text("spare_part_picture"),
-  quantity: integer("spare_part_quantity").default(0),
+  id: varchar("part_id").primaryKey(),
+  name: varchar("part_name").notNull(),
+  partNumber: varchar("part_number"),
+  manufacturer: varchar("part_manufacturer"),
+  quantityInStock: integer("quantity_in_stock").default(0),
+  minimumStockLevel: integer("minimum_stock_level").default(0),
+  unitPrice: integer("unit_price"),
+  location: varchar("location"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
