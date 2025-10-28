@@ -60,7 +60,8 @@ Preferred communication style: Simple, everyday language.
 Core entities with VARCHAR UUID primary keys:
 - **Profiles** (users): Authentication and technician profiles (username, password_hash, full_name, email, user_role)
 - **Clients**: Business customer records with contact details (client_contact) and tax information (client_pib, client_pdv, client_account)
-- **Appliances**: Equipment tracked per client with maker, type, model, serial, IGA number, picture URL, service dates
+- **Appliances**: Equipment tracked per client with maker, type, model, serial, IGA number, picture URL, location details (city, building, room), and service dates
+  - Location fields added October 28, 2025: appliance_city, appliance_building, appliance_room for precise equipment positioning across multiple client facilities
 - **Tasks**: Service assignments with status workflow (pending → in_progress → completed), priority levels, and recurring task support
 - **Reports**: Service completion documentation linked to tasks with spare_parts_used, work_duration, photos
 - **Documents**: File metadata with related_to/related_id for flexible entity linking

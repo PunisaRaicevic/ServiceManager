@@ -25,6 +25,9 @@ const applianceFormSchema = insertApplianceSchema.extend({
   model: z.string().optional(),
   serial: z.string().optional(),
   iga: z.string().optional(),
+  city: z.string().optional(),
+  building: z.string().optional(),
+  room: z.string().optional(),
   installDate: z.string().optional(),
 });
 
@@ -47,6 +50,9 @@ export default function AddApplianceDialog({
       model: "",
       serial: "",
       iga: "",
+      city: "",
+      building: "",
+      room: "",
       installDate: "",
     },
   });
@@ -106,6 +112,9 @@ export default function AddApplianceDialog({
       model: values.model || null,
       serial: values.serial || null,
       iga: values.iga || null,
+      city: values.city || null,
+      building: values.building || null,
+      room: values.room || null,
       installDate: values.installDate || null,
     };
 
@@ -212,6 +221,65 @@ export default function AddApplianceDialog({
                 </FormItem>
               )}
             />
+
+            <div className="space-y-2 p-4 bg-muted rounded-md">
+              <h4 className="font-medium text-sm">Location Details</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Grad (City)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Beograd"
+                          data-testid="input-appliance-city"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="building"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Objekat (Building)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Main Kitchen"
+                          data-testid="input-appliance-building"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="room"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Prostorija (Room)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Cold Storage 2"
+                          data-testid="input-appliance-room"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, FileText, History, Upload, Wrench, Plus } from "lucide-react";
+import { Package, FileText, History, Upload, Wrench, Plus, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Appliance, Client } from "@shared/schema";
@@ -209,6 +209,9 @@ export default function StoragePage() {
                   {filteredAppliances.map((appliance) => {
                     const client = clients.find(c => c.id === appliance.clientId);
                     const applianceLabel = [appliance.maker, appliance.type, appliance.model].filter(Boolean).join(' - ') || 'Appliance';
+                    const locationParts = [appliance.city, appliance.building, appliance.room].filter(Boolean);
+                    const locationLabel = locationParts.length > 0 ? locationParts.join(' • ') : null;
+                    
                     return (
                       <Card 
                         key={appliance.id} 
@@ -219,17 +222,13 @@ export default function StoragePage() {
                         <div className="mb-3">
                           <h3 className="font-medium text-lg mb-1">{applianceLabel}</h3>
                           <p className="text-sm text-primary">{client?.name}</p>
+                          {locationLabel && (
+                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1" data-testid={`location-${appliance.id}`}>
+                              <MapPin className="h-3 w-3" />
+                              {locationLabel}
+                            </p>
+                          )}
                         </div>
-                        {appliance.maker && (
-                          <p className="text-sm text-muted-foreground mb-1">
-                            <span className="font-medium">Maker:</span> {appliance.maker}
-                          </p>
-                        )}
-                        {appliance.type && (
-                          <p className="text-sm text-muted-foreground mb-1">
-                            <span className="font-medium">Type:</span> {appliance.type}
-                          </p>
-                        )}
                         {appliance.serial && (
                           <p className="text-sm text-muted-foreground mb-1">
                             <span className="font-medium">S/N:</span> {appliance.serial}

@@ -149,6 +149,34 @@ export default function ApplianceDetailsPage() {
           </div>
         </Card>
 
+        {(appliance.city || appliance.building || appliance.room) && (
+          <Card className="p-6 mb-6">
+            <h3 className="text-sm uppercase tracking-wide font-semibold mb-4 text-muted-foreground">
+              Location
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {appliance.city && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Grad (City)</p>
+                  <p className="text-sm font-medium" data-testid="text-city">{appliance.city}</p>
+                </div>
+              )}
+              {appliance.building && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Objekat (Building)</p>
+                  <p className="text-sm font-medium" data-testid="text-building">{appliance.building}</p>
+                </div>
+              )}
+              {appliance.room && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Prostorija (Room)</p>
+                  <p className="text-sm font-medium" data-testid="text-room">{appliance.room}</p>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
         <h3 className="text-xl font-semibold mb-4">Service History</h3>
         <div className="text-center py-12 text-muted-foreground">
           No service history available yet
