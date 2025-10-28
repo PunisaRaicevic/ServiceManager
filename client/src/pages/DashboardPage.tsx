@@ -12,7 +12,7 @@ export default function DashboardPage() {
     {
       id: "tasks",
       title: t.nav.tasks,
-      description: "View and manage service tasks",
+      description: t.nav.tasksDescription,
       icon: ClipboardList,
       path: "/tasks",
       color: "text-blue-600 dark:text-blue-400",
@@ -20,15 +20,15 @@ export default function DashboardPage() {
     {
       id: "clients",
       title: t.nav.clients,
-      description: "Browse client information",
+      description: t.nav.clientsDescription,
       icon: Users,
       path: "/clients",
       color: "text-green-600 dark:text-green-400",
     },
     {
       id: "storage",
-      title: "Storage",
-      description: "Access parts, docs & history",
+      title: t.storage.title,
+      description: t.nav.storageDescription,
       icon: Package,
       path: "/storage",
       color: "text-purple-600 dark:text-purple-400",

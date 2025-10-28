@@ -31,6 +31,7 @@ export const sr = {
     loginError: 'Neispravno korisničko ime ili lozinka',
     appTitle: 'Tehniko Sistem',
     appSubtitle: 'Budva Crna Gora',
+    loginHelper: 'Prijavite se da biste upravljali servisnim zadacima',
   },
 
   // Navigation
@@ -42,6 +43,9 @@ export const sr = {
     documents: 'Dokumenti',
     spareParts: 'Rezervni Delovi',
     dashboard: 'Početna',
+    tasksDescription: 'Pregledajte i upravljajte servisnim zadacima',
+    clientsDescription: 'Pregledajte informacije o klijentima',
+    storageDescription: 'Pristupite delovima, dokumentima i istoriji',
   },
 
   // Clients

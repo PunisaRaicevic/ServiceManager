@@ -60,7 +60,7 @@ export default function LoginPage() {
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            Sign in to manage your service tasks
+            {t.auth.loginHelper}
           </p>
         </div>
 

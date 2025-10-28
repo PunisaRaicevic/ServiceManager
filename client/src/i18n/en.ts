@@ -31,6 +31,7 @@ export const en = {
     loginError: 'Invalid username or password',
     appTitle: 'Tehniko System',
     appSubtitle: 'Budva Montenegro',
+    loginHelper: 'Sign in to manage your service tasks',
   },
 
   // Navigation
@@ -42,6 +43,9 @@ export const en = {
     documents: 'Documents',
     spareParts: 'Spare Parts',
     dashboard: 'Dashboard',
+    tasksDescription: 'View and manage service tasks',
+    clientsDescription: 'Browse client information',
+    storageDescription: 'Access parts, docs & history',
   },
 
   // Clients
