@@ -73,7 +73,7 @@ export default function TaskDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header username="Technician" onLogout={() => setLocation('/')} />
+      <Header />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
