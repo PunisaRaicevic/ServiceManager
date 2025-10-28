@@ -230,13 +230,8 @@ export default function StoragePage() {
                           )}
                         </div>
                         {appliance.serial && (
-                          <p className="text-sm text-muted-foreground mb-1">
-                            <span className="font-medium">S/N:</span> {appliance.serial}
-                          </p>
-                        )}
-                        {appliance.iga && (
                           <p className="text-sm text-muted-foreground">
-                            <span className="font-medium">IGA:</span> {appliance.iga}
+                            <span className="font-medium">S/N:</span> {appliance.serial}
                           </p>
                         )}
                       </Card>

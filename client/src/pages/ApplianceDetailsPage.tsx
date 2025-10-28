@@ -121,13 +121,6 @@ export default function ApplianceDetailsPage() {
                 <span data-testid="text-serial">{appliance.serial}</span>
               </div>
             )}
-            {appliance.iga && (
-              <div className="flex items-center gap-2 text-sm font-mono">
-                <Hash className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">IGA:</span>
-                <span data-testid="text-iga">{appliance.iga}</span>
-              </div>
-            )}
             {appliance.lastServiceDate && typeof appliance.lastServiceDate === 'string' && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />

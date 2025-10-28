@@ -24,7 +24,6 @@ const applianceFormSchema = insertApplianceSchema.extend({
   type: z.string().optional(),
   model: z.string().optional(),
   serial: z.string().optional(),
-  iga: z.string().optional(),
   city: z.string().optional(),
   building: z.string().optional(),
   room: z.string().optional(),
@@ -49,7 +48,6 @@ export default function AddApplianceDialog({
       type: "",
       model: "",
       serial: "",
-      iga: "",
       city: "",
       building: "",
       room: "",
@@ -111,7 +109,6 @@ export default function AddApplianceDialog({
       type: values.type || null,
       model: values.model || null,
       serial: values.serial || null,
-      iga: values.iga || null,
       city: values.city || null,
       building: values.building || null,
       room: values.room || null,
@@ -196,24 +193,6 @@ export default function AddApplianceDialog({
                     <Input
                       placeholder="e.g., SN-12345"
                       data-testid="input-appliance-serial"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="iga"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>IGA Number</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., IGA-123456"
-                      data-testid="input-appliance-iga"
                       {...field}
                     />
                   </FormControl>

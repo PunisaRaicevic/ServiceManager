@@ -31,7 +31,6 @@ export const appliances = pgTable("appliances", {
   type: varchar("appliance_type"),
   model: varchar("appliance_model"),
   serial: varchar("appliance_serial"),
-  iga: varchar("appliance_iga"),
   picture: varchar("appliance_picture"),
   city: varchar("appliance_city"),
   building: varchar("appliance_building"),
