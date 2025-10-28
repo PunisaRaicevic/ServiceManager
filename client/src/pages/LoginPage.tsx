@@ -32,7 +32,7 @@ export default function LoginPage() {
             <img 
               src={tehnikoLogo} 
               alt="Tehniko System - Budva Montenegro" 
-              className="h-24 w-auto"
+              className="h-48 w-auto"
               data-testid="img-logo"
             />
           </div>
