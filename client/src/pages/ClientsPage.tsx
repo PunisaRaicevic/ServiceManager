@@ -11,7 +11,7 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Client } from "@shared/schema";
+import type { Client, Appliance } from "@shared/schema";
 
 export default function ClientsPage() {
   const [, setLocation] = useLocation();
@@ -25,6 +25,10 @@ export default function ClientsPage() {
 
   const { data: clients = [], isLoading } = useQuery<Client[]>({
     queryKey: ["/api/clients"],
+  });
+
+  const { data: appliances = [] } = useQuery<Appliance[]>({
+    queryKey: ["/api/appliances"],
   });
 
   const createClientMutation = useMutation({
@@ -59,6 +63,10 @@ export default function ClientsPage() {
       phone: newClientPhone,
       address: newClientAddress || null,
     });
+  };
+
+  const getApplianceCount = (clientId: string) => {
+    return appliances.filter(a => a.clientId === clientId).length;
   };
 
   const filteredClients = clients.filter((client) =>
@@ -183,7 +191,7 @@ export default function ClientsPage() {
               name={client.name}
               email={client.email}
               phone={client.phone}
-              applianceCount={client.applianceCount || 0}
+              applianceCount={getApplianceCount(client.id || client.clientId)}
               onClick={() => setLocation(`/clients/${client.id || client.clientId}`)}
             />
           ))}
