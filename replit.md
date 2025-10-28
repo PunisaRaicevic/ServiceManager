@@ -135,7 +135,13 @@ Core entities with VARCHAR UUID primary keys:
 - Prepared endpoints for n8n automation webhook integration (not yet implemented)
 - File storage infrastructure ready for Supabase Storage or similar services (currently local/database storage)
 
-**Authentication Status**
-- Current implementation uses mock authentication flow
-- Schema supports user roles and password storage
-- Ready for implementation of proper authentication system (JWT, session-based, or OAuth)
+**Authentication Implementation** (Updated October 28, 2025)
+- **Session-based authentication** using `express-session`
+- Login endpoint: `POST /api/login` - validates credentials and creates server-side session
+- Current user endpoint: `GET /api/user/me` - returns authenticated user from session
+- Logout endpoint: `POST /api/logout` - destroys session
+- **AuthContext** on frontend provides current user data via `useAuth` hook
+- Header component displays user's full name instead of hardcoded placeholder
+- Session persists across page navigation with 7-day cookie expiration
+- Test user: username "lolo", password "lolo", full name "Luka Petrović"
+- Note: Password validation is simplified (plaintext comparison) - production should use bcrypt hashing
