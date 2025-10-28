@@ -69,7 +69,7 @@ export const reports = pgTable("reports", {
   description: text("description").notNull(),
   sparePartsUsed: text("spare_parts_used"),
   workDuration: integer("work_duration"),
-  photos: text("photos"),
+  photos: text("photos").array(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
