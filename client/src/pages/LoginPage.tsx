@@ -16,12 +16,27 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login
-    setTimeout(() => {
-      console.log('Login submitted:', { username, password });
-      setIsLoading(false);
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.message || 'Login failed');
+        setIsLoading(false);
+        return;
+      }
+
       setLocation('/dashboard');
-    }, 800);
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
