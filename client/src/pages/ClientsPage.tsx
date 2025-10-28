@@ -13,38 +13,6 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@shared/schema";
 
-//todo: remove mock functionality
-const mockClients = [
-  {
-    clientId: "1",
-    name: "Grand Hotel Plaza",
-    email: "maintenance@grandhotel.com",
-    phone: "+1 555-0123",
-    applianceCount: 12,
-  },
-  {
-    clientId: "2",
-    name: "Riverside Restaurant",
-    email: "manager@riverside.com",
-    phone: "+1 555-0456",
-    applianceCount: 8,
-  },
-  {
-    clientId: "3",
-    name: "Marina Bistro",
-    email: "contact@marinabistro.com",
-    phone: "+1 555-0789",
-    applianceCount: 5,
-  },
-  {
-    clientId: "4",
-    name: "Coastal Café",
-    email: "info@coastalcafe.com",
-    phone: "+1 555-0321",
-    applianceCount: 4,
-  },
-];
-
 export default function ClientsPage() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,10 +61,9 @@ export default function ClientsPage() {
     });
   };
 
-  const displayClients = clients.length > 0 ? clients : mockClients;
-  const filteredClients = displayClients.filter((client: any) =>
+  const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchQuery.toLowerCase())
+    (client.contact?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
 
   return (

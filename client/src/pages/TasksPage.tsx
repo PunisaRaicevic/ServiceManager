@@ -18,45 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 import type { Client, Appliance, User, Task } from "@shared/schema";
 import { generateUpcomingDates, getRecurrencePatternLabel, type RecurrencePattern } from "@/lib/recurringUtils";
 
-//todo: remove mock functionality
-const mockTasks = [
-  {
-    taskId: "1",
-    description: "Annual maintenance - Commercial Freezer",
-    clientName: "Grand Hotel Plaza",
-    status: "pending" as const,
-    createdAt: new Date('2024-01-15'),
-  },
-  {
-    taskId: "2",
-    description: "Repair ice maker - Kitchen Unit #3",
-    clientName: "Riverside Restaurant",
-    status: "in_progress" as const,
-    createdAt: new Date('2024-01-14'),
-  },
-  {
-    taskId: "3",
-    description: "Replace compressor - Walk-in cooler",
-    clientName: "Marina Bistro",
-    status: "completed" as const,
-    createdAt: new Date('2024-01-10'),
-  },
-  {
-    taskId: "4",
-    description: "Check refrigeration system - Bar area",
-    clientName: "Grand Hotel Plaza",
-    status: "pending" as const,
-    createdAt: new Date('2024-01-12'),
-  },
-  {
-    taskId: "5",
-    description: "Install new dishwasher",
-    clientName: "Coastal Café",
-    status: "in_progress" as const,
-    createdAt: new Date('2024-01-13'),
-  },
-];
-
 export default function TasksPage() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +51,7 @@ export default function TasksPage() {
   
   const { data: tasks = [], isLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
+    refetchOnMount: true,
   });
   
   const filteredAppliances = clientId 
@@ -154,12 +116,11 @@ export default function TasksPage() {
   const upcomingDates = taskType === "recurring" && dueDate && recurrencePattern !== "none"
     ? generateUpcomingDates(new Date(dueDate), recurrencePattern, recurrenceInterval, 5)
     : [];
-
-  const displayTasks = tasks.length > 0 ? tasks : mockTasks;
   
-  const filteredTasks = displayTasks.filter((task: any) => {
+  const filteredTasks = tasks.filter((task) => {
+    const client = clients.find(c => c.id === task.clientId);
     const matchesSearch = task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (task.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+                         (client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesStatus = statusFilter === "all" || task.status === statusFilter;
     const matchesType = taskTypeFilter === "all" || task.taskType === taskTypeFilter;
     return matchesSearch && matchesStatus && matchesType;

@@ -11,14 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 
-//todo: remove mock functionality
-const mockSpareParts = [
-  { id: "1", name: "Compressor Belt", maker: "ThermoKing" },
-  { id: "2", name: "Refrigerant R-134a (1kg)", maker: "DuPont" },
-  { id: "3", name: "Thermostat Controller", maker: "Honeywell" },
-  { id: "4", name: "Door Seal Gasket", maker: "Universal" },
-];
-
 interface SparePartUsed {
   sparePartId: string;
   quantity: number;
@@ -143,11 +135,7 @@ export default function CreateReportPage() {
                       <SelectValue placeholder="Select spare part" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockSpareParts.map((sparePart) => (
-                        <SelectItem key={sparePart.id} value={sparePart.id}>
-                          {sparePart.name} - {sparePart.maker}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="temp">No spare parts available</SelectItem>
                     </SelectContent>
                   </Select>
                   <Input
