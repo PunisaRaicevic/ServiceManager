@@ -134,6 +134,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/tasks", async (req, res) => {
     try {
       const validatedData = insertTaskSchema.parse(req.body);
+      
+      if (validatedData.taskType === "recurring" && validatedData.dueDate && validatedData.recurrencePattern && validatedData.recurrencePattern !== "none") {
+        const { calculateNextOccurrenceDate } = await import("./recurringTasksService");
+        validatedData.nextOccurrenceDate = calculateNextOccurrenceDate(
+          validatedData.dueDate as string,
+          validatedData.recurrencePattern as string,
+          validatedData.recurrenceInterval || 1
+        );
+      }
+      
       const task = await storage.createTask(validatedData);
       res.status(201).json(task);
     } catch (error: any) {
@@ -152,6 +162,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/tasks/:id", async (req, res) => {
     await storage.deleteTask(req.params.id);
     res.status(204).send();
+  });
+
+  // Recurring tasks endpoint
+  app.get("/api/tasks/recurring/due", async (req, res) => {
+    const tasks = await storage.getRecurringTasksDue();
+    res.json(tasks);
+  });
+
+  // Generate recurring tasks
+  app.post("/api/tasks/recurring/generate", async (req, res) => {
+    try {
+      const { generateRecurringTasks } = await import("./recurringTasksService");
+      const result = await generateRecurringTasks();
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // Reports

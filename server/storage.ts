@@ -9,7 +9,7 @@ import {
   profiles, clients, appliances, tasks, reports, documents, spareParts
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and, lte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -36,6 +36,7 @@ export interface IStorage {
   getTasksByStatus(status: string): Promise<Task[]>;
   getTasksByClient(clientId: string): Promise<Task[]>;
   getTasksByUser(userId: string): Promise<Task[]>;
+  getRecurringTasksDue(): Promise<Task[]>;
   createTask(task: InsertTask): Promise<Task>;
   updateTask(id: string, task: Partial<InsertTask>): Promise<Task | undefined>;
   deleteTask(id: string): Promise<void>;
@@ -154,6 +155,16 @@ export class DbStorage implements IStorage {
 
   async getTasksByUser(userId: string): Promise<Task[]> {
     return await db.select().from(tasks).where(eq(tasks.userId, userId));
+  }
+
+  async getRecurringTasksDue(): Promise<Task[]> {
+    const today = new Date().toISOString().split('T')[0];
+    return await db.select().from(tasks).where(
+      and(
+        eq(tasks.taskType, "recurring"),
+        lte(tasks.nextOccurrenceDate, today)
+      )
+    );
   }
 
   async createTask(insertTask: InsertTask): Promise<Task> {
