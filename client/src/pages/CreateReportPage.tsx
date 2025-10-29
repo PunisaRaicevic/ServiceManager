@@ -7,18 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n";
-
-interface SparePartUsed {
-  sparePartId: string;
-  quantity: number;
-}
 
 export default function CreateReportPage() {
   const t = useTranslation();
@@ -26,23 +19,9 @@ export default function CreateReportPage() {
   const [, params] = useRoute("/tasks/:id/report");
   const [description, setDescription] = useState("");
   const [workDuration, setWorkDuration] = useState("");
-  const [partsUsed, setPartsUsed] = useState<SparePartUsed[]>([]);
+  const [sparePartsUsed, setSparePartsUsed] = useState("");
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const { toast } = useToast();
-
-  const addSparePartRow = () => {
-    setPartsUsed([...partsUsed, { sparePartId: "", quantity: 1 }]);
-  };
-
-  const removeSparePartRow = (index: number) => {
-    setPartsUsed(partsUsed.filter((_, i) => i !== index));
-  };
-
-  const updateSparePart = (index: number, field: keyof SparePartUsed, value: string | number) => {
-    const updated = [...partsUsed];
-    updated[index] = { ...updated[index], [field]: value };
-    setPartsUsed(updated);
-  };
 
   const createReportMutation = useMutation({
     mutationFn: async (reportData: any) => {
@@ -71,7 +50,7 @@ export default function CreateReportPage() {
       taskId: params?.id,
       description,
       workDuration: parseInt(workDuration),
-      sparePartsUsed: partsUsed.length > 0 ? JSON.stringify(partsUsed) : null,
+      sparePartsUsed: sparePartsUsed.trim() || null,
       photos: photoUrls.length > 0 ? photoUrls : null,
     };
     
@@ -137,61 +116,19 @@ export default function CreateReportPage() {
           </Card>
 
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Label className="text-base">{t.reports.sparePartsUsed}</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addSparePartRow}
-                data-testid="button-add-spare-part"
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                {t.reports.addPart}
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {partsUsed.map((part, index) => (
-                <div key={index} className="flex gap-3" data-testid={`row-spare-part-${index}`}>
-                  <Select
-                    value={part.sparePartId}
-                    onValueChange={(value) => updateSparePart(index, 'sparePartId', value)}
-                  >
-                    <SelectTrigger className="flex-1" data-testid={`select-spare-part-${index}`}>
-                      <SelectValue placeholder={t.reports.selectSparePart} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="temp">{t.reports.noSparePartsAvailable}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder={t.reports.quantity}
-                    value={part.quantity}
-                    onChange={(e) => updateSparePart(index, 'quantity', parseInt(e.target.value) || 1)}
-                    className="w-20"
-                    data-testid={`input-quantity-${index}`}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeSparePartRow(index)}
-                    data-testid={`button-remove-${index}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-
-              {partsUsed.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  {t.reports.noSparePartsAdded}
-                </p>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="spare-parts-used">{t.reports.sparePartsUsed}</Label>
+              <Textarea
+                id="spare-parts-used"
+                placeholder={t.reports.sparePartsPlaceholder}
+                value={sparePartsUsed}
+                onChange={(e) => setSparePartsUsed(e.target.value)}
+                className="min-h-24"
+                data-testid="textarea-spare-parts"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t.reports.sparePartsHint}
+              </p>
             </div>
           </Card>
 
