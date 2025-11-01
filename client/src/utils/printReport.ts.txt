@@ -1,6 +1,7 @@
 import html2pdf from "html2pdf.js";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 
-export function printReport(elementId: string, fileName = "report.pdf") {
+export async function printReport(elementId: string, fileName = "report.pdf") {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error(`Element with ID "${elementId}" not found`);
@@ -15,15 +16,22 @@ export function printReport(elementId: string, fileName = "report.pdf") {
     jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
   };
 
-  // ✅ Radi i u browseru i u Android aplikaciji
-  html2pdf()
-    .set(options)
-    .from(element)
-    .outputPdf('bloburl')
-    .then((pdfUrl: string) => {
-      window.open(pdfUrl, '_blank'); // otvori PDF u pregledniku
-    })
-    .catch((err: any) => {
-      console.error("Error generating PDF:", err);
+  try {
+    // Generiši PDF kao binarni sadržaj (base64)
+    const pdfBase64 = await html2pdf().set(options).from(element).outputPdf("datauristring");
+    const base64Data = pdfBase64.split(",")[1]; // ukloni "data:application/pdf;base64,"
+
+    // Sačuvaj fajl u Downloads folder
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.Documents, // koristi Documents jer je dostupno svim appovima
     });
+
+    console.log("PDF saved:", savedFile.uri);
+    alert("✅ Report saved to Documents folder!");
+  } catch (err) {
+    console.error("Error generating or saving PDF:", err);
+    alert("❌ Failed to save report.");
+  }
 }
