@@ -15,5 +15,15 @@ export function printReport(elementId: string, fileName = "report.pdf") {
     jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
   };
 
-  html2pdf().set(options).from(element).save();
+  // ✅ Radi i u browseru i u Android aplikaciji
+  html2pdf()
+    .set(options)
+    .from(element)
+    .outputPdf('bloburl')
+    .then((pdfUrl: string) => {
+      window.open(pdfUrl, '_blank'); // otvori PDF u pregledniku
+    })
+    .catch((err: any) => {
+      console.error("Error generating PDF:", err);
+    });
 }
