@@ -1,15 +1,14 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'me.budva.tehniko',
   appName: 'Tehniko System',
-  webDir: 'dist/public',
+  webDir: 'client/dist',
   server: {
-    androidScheme: 'https'
-  },
-  android: {
-  allowMixedContent: true
-}
+    url: 'https://service-manager-bu2ninn8n.replit.app',
+    cleartext: true
+  }
 };
 
 export default config;
+
