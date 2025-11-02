@@ -50,6 +50,7 @@ export async function generateUpcomingRecurringInstances(daysAhead: number = 30)
   const horizon = new Date(today);
   horizon.setDate(horizon.getDate() + daysAhead);
   const horizonStr = horizon.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split('T')[0];
   
   for (const parentTask of recurringParentTasks) {
     if (!parentTask.dueDate || !parentTask.recurrencePattern) continue;
@@ -61,7 +62,7 @@ export async function generateUpcomingRecurringInstances(daysAhead: number = 30)
       existingInstances.map(t => t.dueDate).filter((d): d is string => d !== null)
     );
     
-    let currentDate = parentTask.dueDate;
+    let currentDate = parentTask.dueDate < todayStr ? todayStr : parentTask.dueDate;
     while (currentDate && currentDate <= horizonStr) {
       if (!existingDueDates.has(currentDate)) {
         const nextOccurrence = calculateNextOccurrenceDate(
