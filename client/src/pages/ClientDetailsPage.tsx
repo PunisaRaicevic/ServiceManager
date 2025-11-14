@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Wrench, Calendar, Building2, FileText, Hash, Plus } from "lucide-react";
+import { Mail, Phone, MapPin, Wrench, Calendar, Building2, FileText, Hash, Plus, User } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -78,18 +78,52 @@ export default function ClientDetailsPage() {
             {t.clients.contactInfo}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            {client.contact && (
+            {client.contactName && (
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{t.clients.contactName}:</span>
+                <span data-testid="text-contact-name">{client.contactName}</span>
+              </div>
+            )}
+            {client.contactPhone && (
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t.clients.phone}:</span>
-                <span data-testid="text-phone">{client.contact}</span>
+                <span className="text-muted-foreground">{t.clients.contactPhone}:</span>
+                <a 
+                  href={`tel:${client.contactPhone}`}
+                  className="text-primary hover:underline"
+                  data-testid="link-contact-phone"
+                >
+                  {client.contactPhone}
+                </a>
+              </div>
+            )}
+            {client.contactEmail && (
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{t.clients.contactEmail}:</span>
+                <a 
+                  href={`mailto:${client.contactEmail}`}
+                  className="text-primary hover:underline"
+                  data-testid="link-contact-email"
+                >
+                  {client.contactEmail}
+                </a>
               </div>
             )}
             {client.address && (
               <div className="flex items-start gap-2 text-sm sm:col-span-2">
                 <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                 <span className="text-muted-foreground">{t.clients.address}:</span>
-                <span data-testid="text-address">{client.address}</span>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline cursor-pointer"
+                  data-testid="link-address-maps"
+                >
+                  {client.address}
+                </a>
               </div>
             )}
           </div>
