@@ -128,7 +128,8 @@ export default function VoiceRecordButton({
       }
 
       console.log("Sending request to /api/transcribe-voice");
-      const response = await apiRequest("POST", "/api/transcribe-voice", formData) as {
+      const response = await apiRequest("POST", "/api/transcribe-voice", formData);
+      const data = await response.json() as {
         transcript: string;
         reportData: {
           description: string;
@@ -137,12 +138,12 @@ export default function VoiceRecordButton({
         };
       };
 
-      console.log("Received response:", response);
+      console.log("Received data:", data);
       toast({
         description: t.voice.transcriptionSuccess,
       });
 
-      onReportGenerated(response.reportData);
+      onReportGenerated(data.reportData);
     } catch (error: any) {
       console.error("Transcription error:", error);
       toast({
