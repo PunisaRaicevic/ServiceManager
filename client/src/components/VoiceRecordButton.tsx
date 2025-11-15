@@ -1,0 +1,176 @@
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Mic, Square, Loader2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/i18n";
+
+interface VoiceRecordButtonProps {
+  onReportGenerated: (reportData: {
+    description: string;
+    workDuration: number;
+    sparePartsUsed: string | null;
+  }) => void;
+  disabled?: boolean;
+}
+
+export default function VoiceRecordButton({
+  onReportGenerated,
+  disabled = false,
+}: VoiceRecordButtonProps) {
+  const t = useTranslation();
+  const { toast } = useToast();
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+        await processAudio(audioBlob);
+
+        // Clean up stream
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+    } catch (error: any) {
+      console.error("Microphone access error:", error);
+      toast({
+        description: t.voice.microphoneError,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const processAudio = async (audioBlob: Blob) => {
+    setIsProcessing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.webm");
+
+      const response = await apiRequest<{
+        transcript: string;
+        reportData: {
+          description: string;
+          workDuration: number;
+          sparePartsUsed: string | null;
+        };
+      }>("POST", "/api/transcribe-voice", formData);
+
+      toast({
+        description: t.voice.transcriptionSuccess,
+      });
+
+      onReportGenerated(response.reportData);
+    } catch (error: any) {
+      console.error("Transcription error:", error);
+      toast({
+        description: error.message || t.voice.transcriptionError,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (isProcessing) {
+    return (
+      <Card className="p-4 border-2 border-primary">
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">{t.voice.processing}</p>
+            <p className="text-xs text-muted-foreground">
+              {t.voice.processingHint}
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (isRecording) {
+    return (
+      <Card className="p-4 border-2 border-destructive bg-destructive/5">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Mic className="h-5 w-5 text-destructive" />
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+            </span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">{t.voice.recording}</p>
+            <p className="text-xs text-muted-foreground">{t.voice.recordingHint}</p>
+          </div>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={stopRecording}
+            data-testid="button-stop-recording"
+          >
+            <Square className="h-4 w-4 mr-2" />
+            {t.voice.stop}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-4 border-2 border-dashed overflow-visible hover-elevate cursor-pointer">
+      <div
+        className="flex items-center gap-3"
+        onClick={disabled ? undefined : startRecording}
+      >
+        <Mic className="h-5 w-5 text-primary" />
+        <div className="flex-1">
+          <p className="text-sm font-medium">{t.voice.recordMessage}</p>
+          <p className="text-xs text-muted-foreground">{t.voice.recordHint}</p>
+        </div>
+        <Button
+          type="button"
+          variant="default"
+          size="sm"
+          onClick={disabled ? undefined : startRecording}
+          disabled={disabled}
+          data-testid="button-start-recording"
+        >
+          <Mic className="h-4 w-4 mr-2" />
+          {t.voice.record}
+        </Button>
+      </div>
+    </Card>
+  );
+}
