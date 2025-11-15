@@ -11,6 +11,8 @@ import {
 } from "@shared/schema";
 import multer from "multer";
 import OpenAI from "openai";
+import ffmpeg from "fluent-ffmpeg";
+import { Readable } from "stream";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -22,6 +24,34 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit (Whisper API limit)
 });
+
+// Helper function to convert audio to MP3 using FFmpeg
+async function convertToMp3(inputBuffer: Buffer, inputFormat: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    const inputStream = Readable.from(inputBuffer);
+    
+    ffmpeg(inputStream)
+      .inputFormat(inputFormat)
+      .audioCodec('libmp3lame')
+      .audioBitrate('128k')
+      .format('mp3')
+      .on('error', (err) => {
+        console.error('FFmpeg conversion error:', err);
+        reject(err);
+      })
+      .on('end', () => {
+        resolve(Buffer.concat(chunks));
+      })
+      .pipe()
+      .on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+      })
+      .on('end', () => {
+        resolve(Buffer.concat(chunks));
+      });
+  });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Voice to Report endpoint
@@ -79,9 +109,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contextDescription += ". ";
       }
 
+      // Convert audio to MP3 if it's in WebM or other unsupported formats
+      let audioBuffer = audioFile.buffer;
+      let audioFilename = "audio.mp3";
+      let audioMimetype = "audio/mp3";
+
+      if (audioFile.mimetype === "audio/webm" || audioFile.mimetype.includes("webm")) {
+        console.log("Converting WebM audio to MP3 format...");
+        try {
+          audioBuffer = await convertToMp3(audioFile.buffer, "webm");
+          console.log(`Converted WebM to MP3. Original size: ${audioFile.size}, New size: ${audioBuffer.length}`);
+        } catch (conversionError) {
+          console.error("Audio conversion failed:", conversionError);
+          return res.status(500).json({ message: "Failed to convert audio format" });
+        }
+      }
+
       // Step 1: Transcribe audio using Whisper
       const transcription = await openai.audio.transcriptions.create({
-        file: new File([audioFile.buffer], audioFile.originalname, { type: audioFile.mimetype }),
+        file: new File([audioBuffer], audioFilename, { type: audioMimetype }),
         model: "whisper-1",
         language: "sr", // Serbian language for Montenegro
         prompt: contextDescription + "Tehničar opisuje popravku uređaja, delove koji su korišćeni, i vreme rada.",
