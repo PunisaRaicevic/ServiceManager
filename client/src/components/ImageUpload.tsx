@@ -114,7 +114,7 @@ export default function ImageUpload({
       />
 
       <Card
-        className={`p-8 border-2 border-dashed transition-colors overflow-visible ${
+        className={`p-4 border-2 border-dashed transition-colors overflow-visible ${
           dragActive ? 'border-primary bg-primary/5' : 'border-muted'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover-elevate'}`}
         onDragEnter={handleDrag}
@@ -124,17 +124,17 @@ export default function ImageUpload({
         onClick={openFileDialog}
         data-testid="card-upload-zone"
       >
-        <div className="flex flex-col items-center justify-center gap-3 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
           {uploading ? (
             <>
-              <Loader2 className="h-10 w-10 text-primary animate-spin" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
               <p className="text-sm text-muted-foreground">{t.reports.uploadingPhoto}</p>
             </>
           ) : (
             <>
               <div className="flex gap-2">
-                <Camera className="h-10 w-10 text-muted-foreground" />
-                <Upload className="h-10 w-10 text-muted-foreground" />
+                <Camera className="h-8 w-8 text-muted-foreground" />
+                <Upload className="h-8 w-8 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-sm font-medium mb-1">{t.reports.dragDropPhotos}</p>
