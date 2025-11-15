@@ -177,7 +177,7 @@ export default function VoiceRecordButton({
           <Mic className="h-6 w-6 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium mb-1">{t.voice.recordMessage}</p>
+          <h3 className="text-base font-semibold mb-1">{t.voice.recordMessage}</h3>
           <p className="text-xs text-muted-foreground">{t.voice.recordHint}</p>
         </div>
         <Button
