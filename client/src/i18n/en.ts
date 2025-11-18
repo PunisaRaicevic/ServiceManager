@@ -137,6 +137,7 @@ export const en = {
     title: 'Tasks',
     addTask: 'Add Task',
     editTask: 'Edit Task',
+    editTaskDescription: 'Edit basic task information',
     deleteTask: 'Delete Task',
     taskDetails: 'Task Details',
     taskInfo: 'Task Information',

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import StatusBadge from "@/components/StatusBadge";
+import EditTaskDialog from "@/components/EditTaskDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ export default function TaskDetailsPage() {
   const taskId = params?.id;
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
@@ -157,6 +159,16 @@ export default function TaskDetailsPage() {
           <div className="flex flex-col items-end gap-3">
             <StatusBadge status={task.status as "pending" | "in_progress" | "completed"} />
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setIsEditDialogOpen(true)}
+                data-testid="button-edit-task"
+              >
+                <Edit className="h-4 w-4" />
+                {t.tasks.editTask}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -388,6 +400,12 @@ export default function TaskDetailsPage() {
           </Button>
         )}
       </main>
+
+      <EditTaskDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        task={task}
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent data-testid="dialog-delete-task">

@@ -137,6 +137,7 @@ export const sr = {
     title: 'Zadaci',
     addTask: 'Dodaj Zadatak',
     editTask: 'Izmeni Zadatak',
+    editTaskDescription: 'Izmenite osnovne informacije o zadatku',
     deleteTask: 'Obriši Zadatak',
     taskDetails: 'Detalji Zadatka',
     taskInfo: 'Informacije o Zadatku',
