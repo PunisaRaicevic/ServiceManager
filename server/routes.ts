@@ -369,6 +369,12 @@ Odgovori SAMO u JSON formatu:
       }
       
       const task = await storage.createTask(validatedData);
+      
+      // Auto-generate upcoming instances for new recurring tasks (90 days ahead)
+      if (task.taskType === "recurring" && task.recurrencePattern && task.recurrencePattern !== "none") {
+        await generateUpcomingRecurringInstances(90);
+      }
+      
       res.status(201).json(task);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
