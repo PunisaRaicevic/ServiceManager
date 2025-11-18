@@ -14,6 +14,7 @@ interface TaskCardProps {
   taskId: string;
   description: string;
   clientName: string;
+  applianceName?: string;
   status: TaskStatus;
   createdAt: Date;
   taskType?: TaskType;
@@ -27,6 +28,7 @@ export default function TaskCard({
   taskId,
   description,
   clientName,
+  applianceName,
   status,
   createdAt,
   taskType = "one-time",
@@ -56,12 +58,19 @@ export default function TaskCard({
         <StatusBadge status={status} />
       </div>
       
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-        <span data-testid={`text-client-name-${taskId}`}>{clientName}</span>
-        <span>•</span>
-        <span className="text-xs" data-testid={`text-created-date-${taskId}`}>
-          {format(createdAt, "MMM d, yyyy")}
-        </span>
+      <div className="flex flex-col gap-1 mb-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span data-testid={`text-client-name-${taskId}`}>{clientName}</span>
+          <span>•</span>
+          <span className="text-xs" data-testid={`text-created-date-${taskId}`}>
+            {format(createdAt, "MMM d, yyyy")}
+          </span>
+        </div>
+        {applianceName && (
+          <div className="text-sm text-muted-foreground" data-testid={`text-appliance-name-${taskId}`}>
+            {applianceName}
+          </div>
+        )}
       </div>
 
       {isRecurring && (

@@ -413,6 +413,11 @@ export default function TasksPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredTasks.map((task: any) => {
             const client = clients.find(c => c.id === task.clientId);
+            const appliance = task.applianceId ? appliances.find(a => a.id === task.applianceId) : null;
+            const applianceName = appliance 
+              ? `${appliance.type || ''} ${appliance.maker || ''} ${appliance.model || ''}`.trim()
+              : undefined;
+            
             return (
               <TaskCard
                 key={task.id || task.taskId}
@@ -420,6 +425,7 @@ export default function TasksPage() {
                 description={task.description}
                 status={task.status}
                 clientName={client?.name || t.clients.title}
+                applianceName={applianceName}
                 createdAt={task.dueDate ? new Date(task.dueDate) : task.createdAt}
                 taskType={task.taskType || "one-time"}
                 recurrencePattern={task.recurrencePattern || "none"}
