@@ -213,6 +213,8 @@ export const en = {
     createSuccess: 'Task created successfully',
     createError: 'Failed to create task',
     updateSuccess: 'Task updated successfully',
+    selectRecurrencePattern: 'Please select a recurrence pattern for recurring tasks',
+    recurrenceIntervalMinimum: 'Recurrence interval must be at least 1',
   },
 
   // Reports

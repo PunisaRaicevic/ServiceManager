@@ -213,6 +213,8 @@ export const sr = {
     createSuccess: 'Zadatak uspešno kreiran',
     createError: 'Greška pri kreiranju zadatka',
     updateSuccess: 'Zadatak uspešno ažuriran',
+    selectRecurrencePattern: 'Izaberite obrazac ponavljanja za periodične zadatke',
+    recurrenceIntervalMinimum: 'Interval ponavljanja mora biti najmanje 1',
   },
 
   // Reports

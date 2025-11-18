@@ -8,7 +8,8 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n";
-import type { Task } from "@shared/schema";
+import type { Task, InsertTask } from "@shared/schema";
+import type { RecurrencePattern } from "@/lib/recurringUtils";
 
 interface EditTaskDialogProps {
   open: boolean;
@@ -29,6 +30,15 @@ export default function EditTaskDialog({
     task.dueDate && typeof task.dueDate === 'string' ? task.dueDate : ""
   );
   const [status, setStatus] = useState(task.status || "pending");
+  const [taskType, setTaskType] = useState<"one-time" | "recurring">(
+    (task.taskType as "one-time" | "recurring") || "one-time"
+  );
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(
+    (task.recurrencePattern as RecurrencePattern) || "none"
+  );
+  const [recurrenceInterval, setRecurrenceInterval] = useState(
+    task.recurrenceInterval || 1
+  );
 
   useEffect(() => {
     if (open && task) {
@@ -36,11 +46,31 @@ export default function EditTaskDialog({
       setPriority(task.priority || "normal");
       setDueDate(task.dueDate && typeof task.dueDate === 'string' ? task.dueDate : "");
       setStatus(task.status || "pending");
+      
+      const currentTaskType = (task.taskType as "one-time" | "recurring") || "one-time";
+      setTaskType(currentTaskType);
+      
+      if (currentTaskType === "one-time") {
+        // One-time tasks should have null recurrence values
+        setRecurrencePattern("none");
+        setRecurrenceInterval(1);
+      } else {
+        // Recurring task - set valid defaults if needed
+        const currentPattern = (task.recurrencePattern as RecurrencePattern) || "none";
+        if (currentPattern === "none") {
+          setRecurrencePattern("weekly");
+        } else {
+          setRecurrencePattern(currentPattern);
+        }
+        setRecurrenceInterval(task.recurrenceInterval || 1);
+      }
     }
   }, [open, task]);
 
+  type TaskUpdateData = Partial<Pick<InsertTask, 'description' | 'priority' | 'status' | 'dueDate' | 'taskType' | 'recurrencePattern' | 'recurrenceInterval'>>;
+
   const updateTaskMutation = useMutation({
-    mutationFn: async (taskData: any) => {
+    mutationFn: async (taskData: TaskUpdateData) => {
       return await apiRequest("PATCH", `/api/tasks/${task.id}`, taskData);
     },
     onSuccess: () => {
@@ -51,7 +81,7 @@ export default function EditTaskDialog({
       });
       onOpenChange(false);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         description: error.message || "Failed to update task",
         variant: "destructive",
@@ -60,6 +90,7 @@ export default function EditTaskDialog({
   });
 
   const handleSubmit = () => {
+    // Validate description
     if (!description.trim()) {
       toast({
         description: t.common.required,
@@ -68,17 +99,40 @@ export default function EditTaskDialog({
       return;
     }
 
-    updateTaskMutation.mutate({
+    // Validate recurring task fields
+    if (taskType === "recurring") {
+      if (recurrencePattern === "none" || !recurrencePattern) {
+        toast({
+          description: t.tasks.selectRecurrencePattern,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!recurrenceInterval || recurrenceInterval < 1) {
+        toast({
+          description: t.tasks.recurrenceIntervalMinimum,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const taskData: TaskUpdateData = {
       description: description.trim(),
-      priority,
+      priority: priority || "normal",
       dueDate: dueDate || null,
-      status,
-    });
+      status: status || "pending",
+      taskType,
+      recurrencePattern: taskType === "recurring" ? recurrencePattern : null,
+      recurrenceInterval: taskType === "recurring" ? recurrenceInterval : null,
+    };
+
+    updateTaskMutation.mutate(taskData);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t.tasks.editTask}</DialogTitle>
           <DialogDescription>
@@ -140,11 +194,77 @@ export default function EditTaskDialog({
               data-testid="input-edit-task-due-date"
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-task-type">{t.tasks.taskType}</Label>
+            <Select 
+              value={taskType} 
+              onValueChange={(value: "one-time" | "recurring") => {
+                setTaskType(value);
+                if (value === "one-time") {
+                  // Clear recurrence fields when switching to one-time
+                  setRecurrencePattern("none");
+                  setRecurrenceInterval(1);
+                } else if (value === "recurring" && recurrencePattern === "none") {
+                  // Auto-set valid pattern when switching to recurring
+                  setRecurrencePattern("weekly");
+                  setRecurrenceInterval(1);
+                }
+              }}
+            >
+              <SelectTrigger id="edit-task-type" data-testid="select-edit-task-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="one-time">{t.tasks.types['one-time']}</SelectItem>
+                <SelectItem value="recurring">{t.tasks.types.recurring}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {taskType === "recurring" && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-recurrence-pattern">{t.tasks.pattern}</Label>
+                  <Select 
+                    value={recurrencePattern} 
+                    onValueChange={(value: RecurrencePattern) => setRecurrencePattern(value)}
+                  >
+                    <SelectTrigger id="edit-recurrence-pattern" data-testid="select-edit-recurrence-pattern">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">{t.tasks.recurrencePatterns.weekly}</SelectItem>
+                      <SelectItem value="monthly">{t.tasks.recurrencePatterns.monthly}</SelectItem>
+                      <SelectItem value="quarterly">{t.tasks.recurrencePatterns.quarterly}</SelectItem>
+                      <SelectItem value="semi-annual">{t.tasks.recurrencePatterns['semi-annual']}</SelectItem>
+                      <SelectItem value="yearly">{t.tasks.recurrencePatterns.yearly}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-recurrence-interval">{t.tasks.recurrenceInterval}</Label>
+                  <Input
+                    id="edit-recurrence-interval"
+                    type="number"
+                    min="1"
+                    max="52"
+                    value={recurrenceInterval}
+                    onChange={(e) => setRecurrenceInterval(parseInt(e.target.value) || 1)}
+                    data-testid="input-edit-recurrence-interval"
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
+            disabled={updateTaskMutation.isPending}
             data-testid="button-cancel-edit"
           >
             {t.common.cancel}
