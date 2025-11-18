@@ -49,7 +49,7 @@ export default function TaskCard({
       data-testid={`card-task-${taskId}`}
     >
       {applianceName && (
-        <div className="text-sm text-muted-foreground mb-2" data-testid={`text-appliance-name-${taskId}`}>
+        <div className="text-base font-medium mb-2" data-testid={`text-appliance-name-${taskId}`}>
           {applianceName}
         </div>
       )}
