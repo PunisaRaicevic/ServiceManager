@@ -129,20 +129,12 @@ export default function TasksPage() {
       case "thisWeek":
         endDate.setDate(today.getDate() + 7);
         break;
-      case "nextWeek":
-        endDate.setDate(today.getDate() + 14);
-        break;
       case "thisMonth":
         endDate.setMonth(today.getMonth() + 1);
-        break;
-      case "nextMonth":
-        endDate.setMonth(today.getMonth() + 2);
         break;
       case "next3Months":
         endDate.setMonth(today.getMonth() + 3);
         break;
-      case "all":
-        return { start: null, end: null };
       default:
         endDate.setDate(today.getDate() + 7);
     }
@@ -468,17 +460,14 @@ export default function TasksPage() {
               </SelectContent>
             </Select>
             <Select value={periodFilter} onValueChange={setPeriodFilter}>
-              <SelectTrigger className="w-full sm:w-56" data-testid="select-period-filter">
+              <SelectTrigger className="w-full sm:w-48" data-testid="select-period-filter">
                 <SelectValue placeholder={t.tasks.filterByPeriod} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="today">{t.tasks.periods.today}</SelectItem>
                 <SelectItem value="thisWeek">{t.tasks.periods.thisWeek}</SelectItem>
-                <SelectItem value="nextWeek">{t.tasks.periods.nextWeek}</SelectItem>
                 <SelectItem value="thisMonth">{t.tasks.periods.thisMonth}</SelectItem>
-                <SelectItem value="nextMonth">{t.tasks.periods.nextMonth}</SelectItem>
                 <SelectItem value="next3Months">{t.tasks.periods.next3Months}</SelectItem>
-                <SelectItem value="all">{t.tasks.periods.all}</SelectItem>
               </SelectContent>
             </Select>
           </div>
