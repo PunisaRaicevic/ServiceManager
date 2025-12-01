@@ -5,19 +5,42 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
+// Trust proxy for secure cookies behind Replit's reverse proxy
+app.set('trust proxy', 1);
+
 declare module 'express-session' {
   interface SessionData {
     userId?: string;
   }
 }
 
+// CORS for mobile app (Capacitor WebView)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  // Allow requests from Capacitor (capacitor://localhost, http://localhost, or no origin)
+  if (!origin || origin.includes('localhost') || origin.includes('capacitor://')) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // Required for SameSite=None
     httpOnly: true,
+    sameSite: 'none', // Required for cross-origin cookies (mobile app)
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
   }
 }));
