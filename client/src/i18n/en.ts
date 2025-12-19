@@ -218,6 +218,8 @@ export const en = {
       years: 'years',
     },
     deleteConfirm: 'Are you sure you want to delete this task?',
+    deleteRecurringTask: 'Delete Recurring Task',
+    deleteRecurringConfirm: 'Are you sure you want to delete this recurring task and all its future instances? This action cannot be undone.',
     deleteSuccess: 'Task deleted successfully',
     deleteCompletedError: 'Cannot delete completed task. Completed tasks are preserved as history.',
     createSuccess: 'Task created successfully',
