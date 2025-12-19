@@ -219,6 +219,7 @@ export const sr = {
     },
     deleteConfirm: 'Da li ste sigurni da želite da obrišete ovaj zadatak?',
     deleteRecurringTask: 'Obriši Ponavljajući Zadatak',
+    deleteRecurringTaskHint: 'Brisanje ponavljajućeg zadatka će obrisati sve buduće zakazane instance ovog zadatka.',
     deleteRecurringConfirm: 'Da li ste sigurni da želite da obrišete ovaj ponavljajući zadatak i sve njegove buduće instance? Ova akcija se ne može poništiti.',
     deleteSuccess: 'Zadatak uspešno obrisan',
     deleteCompletedError: 'Ne možete obrisati završen zadatak. Završeni zadaci se čuvaju kao istorija.',

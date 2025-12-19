@@ -169,50 +169,57 @@ export default function TaskDetailsPage() {
           </div>
           <div className="flex flex-col items-end gap-3">
             <StatusBadge status={task.status as "pending" | "in_progress" | "completed"} />
-            <div className="flex flex-wrap gap-2 justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => setIsEditDialogOpen(true)}
-                data-testid="button-edit-task"
-              >
-                <Edit className="h-4 w-4" />
-                <span className="hidden sm:inline">{t.tasks.editTask}</span>
-              </Button>
-              {task.status === "completed" && (
+            <div className="flex flex-col gap-2 items-end">
+              <div className="flex flex-wrap gap-2 justify-end">
                 <Button
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  onClick={() => window.print()}
-                  data-testid="button-print-report"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  data-testid="button-edit-task"
                 >
-                  <Printer className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t.tasks.printReport}</span>
+                  <Edit className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t.tasks.editTask}</span>
                 </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                onClick={() => setIsDeleteDialogOpen(true)}
-                data-testid="button-delete-task"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="hidden sm:inline">{t.tasks.deleteTask}</span>
-              </Button>
-              {hasParentTask && parentTask && (
+                {task.status === "completed" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => window.print()}
+                    data-testid="button-print-report"
+                  >
+                    <Printer className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t.tasks.printReport}</span>
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
                   className="gap-2 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => setIsDeleteParentDialogOpen(true)}
-                  data-testid="button-delete-parent-task"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  data-testid="button-delete-task"
                 >
                   <Trash2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t.tasks.deleteRecurringTask || "Obriši ponavljajući zadatak"}</span>
+                  <span className="hidden sm:inline">{t.tasks.deleteTask}</span>
                 </Button>
+                {hasParentTask && parentTask && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={() => setIsDeleteParentDialogOpen(true)}
+                    data-testid="button-delete-parent-task"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t.tasks.deleteRecurringTask}</span>
+                  </Button>
+                )}
+              </div>
+              {hasParentTask && parentTask && (
+                <p className="text-xs text-muted-foreground max-w-xs text-right">
+                  {t.tasks.deleteRecurringTaskHint || "Brisanje ponavljajućeg zadatka će obrisati sve buduće zakazane instance ovog zadatka."}
+                </p>
               )}
             </div>
           </div>
