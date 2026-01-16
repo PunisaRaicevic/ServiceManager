@@ -271,6 +271,9 @@ export const en = {
     updateSuccess: 'Report updated successfully',
     updateError: 'Failed to update report',
     clickToEdit: 'Click to edit report',
+    pdfDownloaded: 'PDF downloaded successfully',
+    pdfError: 'Failed to generate PDF',
+    downloadPdf: 'Download PDF',
   },
 
   // Storage

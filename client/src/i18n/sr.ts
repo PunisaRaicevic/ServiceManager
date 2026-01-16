@@ -271,6 +271,9 @@ export const sr = {
     updateSuccess: 'Izveštaj uspešno ažuriran',
     updateError: 'Greška pri ažuriranju izveštaja',
     clickToEdit: 'Kliknite da biste izmenili izveštaj',
+    pdfDownloaded: 'PDF uspešno preuzet',
+    pdfError: 'Greška pri generisanju PDF-a',
+    downloadPdf: 'Preuzmi PDF',
   },
 
   // Storage

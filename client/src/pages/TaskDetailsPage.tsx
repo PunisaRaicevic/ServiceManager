@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Mail, Phone, MapPin, Wrench, Calendar, Package, Hash, Repeat, Clock, Share2, FileText, Image, Edit, Trash2 } from "lucide-react";
+import { Mail, Phone, MapPin, Wrench, Calendar, Package, Hash, Repeat, Clock, FileDown, FileText, Image, Edit, Trash2 } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -38,35 +38,38 @@ export default function TaskDetailsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isEditReportDialogOpen, setIsEditReportDialogOpen] = useState(false);
 
-  const handleShareReport = async () => {
-    if (!task || !report) return;
-    
-    const reportText = [
-      `${t.tasks.title}: ${task.description}`,
-      client ? `${t.clients.title}: ${client.name}` : '',
-      appliance ? `${t.appliances.title}: ${[appliance.maker, appliance.type, appliance.model].filter(Boolean).join(' - ')}` : '',
-      report.description ? `\n${t.reports.description}: ${report.description}` : '',
-      report.workDuration ? `${t.reports.workDuration}: ${report.workDuration} min` : '',
-      report.sparePartsUsed ? `${t.reports.sparePartsUsed}: ${report.sparePartsUsed}` : '',
-      task.dueDate ? `${t.tasks.dueDate}: ${format(new Date(task.dueDate), "MMM d, yyyy")}` : '',
-    ].filter(Boolean).join('\n');
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: task.description,
-          text: reportText,
-        });
-      } catch (error: any) {
-        if (error.name !== 'AbortError') {
-          toast({
-            description: t.common.error || 'Greška pri dijeljenju',
-            variant: "destructive",
-          });
-        }
+  const handleDownloadPdf = async () => {
+    if (!report) return;
+    
+    setIsDownloadingPdf(true);
+    try {
+      const response = await fetch(`/api/reports/${report.id}/pdf`);
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
       }
-    } else {
-      window.print();
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `izvjestaj-${report.id.slice(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        description: t.reports.pdfDownloaded || 'PDF uspješno preuzet',
+      });
+    } catch (error) {
+      toast({
+        description: t.reports.pdfError || 'Greška pri generisanju PDF-a',
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloadingPdf(false);
     }
   };
 
@@ -234,10 +237,11 @@ export default function TaskDetailsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleShareReport}
-                data-testid="button-share-report"
+                onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
+                data-testid="button-download-pdf"
               >
-                <Share2 className="h-4 w-4" />
+                <FileDown className="h-4 w-4" />
               </Button>
             )}
             <Button
