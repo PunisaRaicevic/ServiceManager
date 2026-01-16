@@ -2,22 +2,26 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import AddApplianceDialog from "@/components/AddApplianceDialog";
+import UploadDocumentDialog from "@/components/UploadDocumentDialog";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Package, FileText, History as HistoryIcon, Upload, Wrench, Plus, MapPin, Search, Repeat } from "lucide-react";
+import { Package, FileText, History as HistoryIcon, Upload, Wrench, Plus, MapPin, Search, Repeat, Trash2, Download, Image, File } from "lucide-react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "@/i18n";
-import type { Appliance, Client, Task } from "@shared/schema";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Appliance, Client, Task, Document } from "@shared/schema";
 import { format } from "date-fns";
 
 export default function StoragePage() {
   const t = useTranslation();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   
   // Get tab from URL query params
   const urlParams = new URLSearchParams(window.location.search);
@@ -25,6 +29,7 @@ export default function StoragePage() {
   
   const [activeTab, setActiveTab] = useState(tabFromUrl);
   const [isAddApplianceOpen, setIsAddApplianceOpen] = useState(false);
+  const [isUploadDocumentOpen, setIsUploadDocumentOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState("");
   const [historyClientFilter, setHistoryClientFilter] = useState<string>("all");
   
@@ -46,6 +51,35 @@ export default function StoragePage() {
   const { data: tasks = [], isLoading: isLoadingTasks } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
   });
+
+  const { data: documents = [], isLoading: isLoadingDocuments } = useQuery<Document[]>({
+    queryKey: ["/api/documents"],
+  });
+
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/documents/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      toast({
+        description: t.documents.deleteSuccess || "Dokument uspešno obrisan",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        description: error.message || t.documents.deleteError || "Greška pri brisanju dokumenta",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getDocumentIcon = (type: string | null) => {
+    if (!type) return <File className="h-5 w-5 text-gray-500" />;
+    if (type === "image" || type.startsWith("image")) return <Image className="h-5 w-5 text-blue-500" />;
+    if (type === "pdf") return <FileText className="h-5 w-5 text-red-500" />;
+    return <File className="h-5 w-5 text-gray-500" />;
+  };
 
   const completedTasks = tasks
     .filter(task => task.status === "completed")
@@ -218,7 +252,7 @@ export default function StoragePage() {
           <TabsContent value="documents" className="space-y-4">
             <div className="flex justify-end mb-4">
               <Button
-                onClick={() => console.log('Upload document')}
+                onClick={() => setIsUploadDocumentOpen(true)}
                 data-testid="button-upload-document"
                 className="gap-2"
               >
@@ -227,32 +261,77 @@ export default function StoragePage() {
               </Button>
             </div>
 
-            <div className="text-center py-12 text-muted-foreground">
-              {t.storage.noDocuments}
-            </div>
-            <div className="space-y-3 hidden">
-              {[].map((doc: any) => (
-                <Card
-                  key={doc.id}
-                  className="p-5 hover-elevate active-elevate-2 cursor-pointer overflow-visible"
-                  onClick={() => console.log('Download document:', doc.id)}
-                  data-testid={`card-document-${doc.id}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <h3 className="font-medium">{doc.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {t.storage.uploaded} {format(doc.uploadedDate, "MMM d, yyyy")}
-                        </p>
+            {isLoadingDocuments ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="p-4">
+                    <div className="animate-pulse flex items-center gap-3">
+                      <div className="h-10 w-10 bg-muted rounded"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
+                        <div className="h-3 bg-muted rounded w-1/4"></div>
                       </div>
                     </div>
-                    <Badge variant="secondary">{doc.type}</Badge>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            ) : documents.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                {t.storage.noDocuments}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {documents
+                  .sort((a, b) => {
+                    if (!a.createdAt && !b.createdAt) return 0;
+                    if (!a.createdAt) return 1;
+                    if (!b.createdAt) return -1;
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                  })
+                  .map((doc) => (
+                  <Card
+                    key={doc.id}
+                    className="p-4 hover:shadow-md transition-shadow"
+                    data-testid={`card-document-${doc.id}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div 
+                        className="flex items-center gap-3 flex-1 cursor-pointer"
+                        onClick={() => window.open(doc.url, '_blank')}
+                      >
+                        {getDocumentIcon(doc.type)}
+                        <div>
+                          <h3 className="font-medium">{doc.name}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {doc.createdAt && format(new Date(doc.createdAt), "MMM d, yyyy")}
+                            {doc.type && ` • ${doc.type.toUpperCase()}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => window.open(doc.url, '_blank')}
+                          title={t.documents.download || "Preuzmi"}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => deleteDocumentMutation.mutate(doc.id)}
+                          title={t.documents.deleteDocument || "Obriši"}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4">
@@ -354,6 +433,11 @@ export default function StoragePage() {
         onSuccess={() => {
           setSelectedClientId("");
         }}
+      />
+
+      <UploadDocumentDialog
+        open={isUploadDocumentOpen}
+        onOpenChange={setIsUploadDocumentOpen}
       />
     </div>
   );

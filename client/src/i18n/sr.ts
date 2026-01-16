@@ -306,8 +306,18 @@ export const sr = {
     noDocuments: 'Nema dokumenata',
     deleteConfirm: 'Da li ste sigurni da želite da obrišete ovaj dokument?',
     deleteSuccess: 'Dokument uspešno obrisan',
+    deleteError: 'Greška pri brisanju dokumenta',
     createSuccess: 'Dokument uspešno kreiran',
     updateSuccess: 'Dokument uspešno ažuriran',
+    uploadSuccess: 'Dokument uspešno otpremljen',
+    uploadError: 'Greška pri otpremanju dokumenta',
+    selectFile: 'Izaberite fajl za otpremanje',
+    uploadDescription: 'Otpremite PDF, sliku, tekst ili drugi dokument',
+    namePlaceholder: 'Naziv dokumenta',
+    file: 'Fajl',
+    dragDrop: 'Prevucite fajl ovde ili kliknite da izaberete',
+    uploading: 'Otpremanje...',
+    download: 'Preuzmi',
   },
 
   // Spare Parts

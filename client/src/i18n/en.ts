@@ -306,8 +306,18 @@ export const en = {
     noDocuments: 'No documents found',
     deleteConfirm: 'Are you sure you want to delete this document?',
     deleteSuccess: 'Document deleted successfully',
+    deleteError: 'Error deleting document',
     createSuccess: 'Document created successfully',
     updateSuccess: 'Document updated successfully',
+    uploadSuccess: 'Document uploaded successfully',
+    uploadError: 'Error uploading document',
+    selectFile: 'Select a file to upload',
+    uploadDescription: 'Upload PDF, image, text or other documents',
+    namePlaceholder: 'Document name',
+    file: 'File',
+    dragDrop: 'Drag and drop a file here or click to select',
+    uploading: 'Uploading...',
+    download: 'Download',
   },
 
   // Spare Parts
